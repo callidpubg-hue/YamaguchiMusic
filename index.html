@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#ff0033">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<title>Yamaguchi Music</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #0a0a0f 0%, #1a0a2e 100%);
+  color: white;
+  min-height: 100vh;
+  padding: 20px;
+  padding-bottom: 140px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Partículas animadas */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(circle at 20% 40%, rgba(255,0,51,0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Animação de brilho */
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(255,0,51,0.3); }
+  50% { box-shadow: 0 0 40px rgba(255,0,51,0.6); }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Header */
+header {
+  text-align: center;
+  padding: 25px 20px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 30px;
+  backdrop-filter: blur(10px);
+  margin-bottom: 20px;
+  border: 1px solid rgba(255,0,51,0.3);
+  animation: slideIn 0.5s ease;
+}
+
+header h1 {
+  font-size: 28px;
+  background: linear-gradient(135deg, #ff0033, #ff6699);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 2px;
+}
+
+header p {
+  font-size: 12px;
+  color: #ff99aa;
+  margin-top: 8px;
+}
+
+/* Botão biblioteca */
+.library-btn {
+  background: linear-gradient(95deg, #ff0033, #cc0044);
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s;
+  animation: glow 2s infinite;
+}
+
+.library-btn:active {
+  transform: scale(0.97);
+}
+
+/* Card de busca */
+.search-card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  border-radius: 25px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255,0,51,0.3);
+  animation: slideIn 0.6s ease;
+}
+
+.search-card h3 {
+  margin-bottom: 15px;
+  color: #ff99aa;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-box {
+  display: flex;
+  gap: 10px;
+}
+
+.search-box input {
+  flex: 1;
+  padding: 15px;
+  border-radius: 30px;
+  border: none;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  font-size: 14px;
+  border: 1px solid #ff3366;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #ff6699;
+}
+
+.search-box button {
+  background: #ff0033;
+  border: none;
+  padding: 0 25px;
+  border-radius: 30px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.search-box button:active {
+  transform: scale(0.95);
+}
+
+/* Resultados */
+#results {
+  margin-top: 15px;
+}
+
+.result-item {
+  background: rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-left: 4px solid #ff0033;
+  animation: slideIn 0.4s ease;
+  transition: all 0.3s;
+}
+
+.result-item:hover {
+  transform: translateX(5px);
+  background: rgba(255,255,255,0.12);
+}
+
+.result-item strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.result-item small {
+  font-size: 11px;
+  color: #ff99aa;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.play-result {
+  background: rgba(255,0,51,0.2);
+  border: 1px solid #ff3366;
+  padding: 8px 15px;
+  border-radius: 30px;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s;
+}
+
+.play-result:active {
+  background: #ff0033;
+}
+
+/* Player fixo */
+.player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.95);
+  backdrop-filter: blur(15px);
+  padding: 15px 20px;
+  border-top: 1px solid #ff0033;
+  z-index: 100;
+}
+
+.now-playing {
+  text-align: center;
+  font-size: 12px;
+  color: #ff99aa;
+  margin-bottom: 8px;
+}
+
+.now-playing span {
+  color: white;
+  font-weight: bold;
+}
+
+.progress-container {
+  margin-bottom: 10px;
+}
+
+.time-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #ff99aa;
+  margin-bottom: 5px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.progress-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff0033, #ff6699);
+  transition: width 0.1s linear;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.ctrl-btn {
+  background: rgba(255,51,102,0.2);
+  border: none;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ctrl-btn:active {
+  transform: scale(0.9);
+  background: #ff0033;
+}
+
+.play-btn {
+  background: #ff0033;
+  width: 55px;
+  height: 55px;
+  font-size: 22px;
+  box-shadow: 0 0 15px #ff0033;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 80%;
+  max-width: 350px;
+  height: 100%;
+  background: rgba(10,10,20,0.98);
+  backdrop-filter: blur(20px);
+  z-index: 1000;
+  transition: right 0.3s ease;
+  padding: 20px;
+  border-left: 2px solid #ff0033;
+  overflow-y: auto;
+}
+
+.sidebar.open {
+  right: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ff3366;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.song-item {
+  background: rgba(255,51,102,0.1);
+  padding: 12px;
+  border-radius: 15px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.song-item:active {
+  background: rgba(255,51,102,0.3);
+}
+
+.song-name {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.song-artist {
+  font-size: 11px;
+  color: #ff99aa;
+}
+
+.delete-song {
+  background: none;
+  border: none;
+  color: #ff6680;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.add-btn {
+  background: rgba(255,51,102,0.2);
+  border: 1px dashed #ff6680;
+  width: 100%;
+  padding: 12px;
+  border-radius: 30px;
+  text-align: center;
+  margin-top: 15px;
+  cursor: pointer;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  z-index: 999;
+  display: none;
+}
+
+.overlay.show {
+  display: block;
+}
+
+.empty {
+  text-align: center;
+  color: #ff99aa;
+  padding: 40px;
+}
+
+footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 11px;
+  color: #b8778a;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎌 YAMAGUCHI MUSIC</h1>
+  <p>🎵 A música que conecta almas 🎵</p>
+</header>
+
+<button class="library-btn" id="openLibraryBtn">
+  📚 MINHAS MÚSICAS
+</button>
+
+<div class="search-card">
+  <h3>🔍 BUSCAR MÚSICAS</h3>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Digite artista ou música...">
+    <button onclick="searchMusic()">BUSCAR</button>
+  </div>
+  <div id="results"></div>
+</div>
+
+<footer>
+  criado por <strong style="color:#ff6680">Ytalo Yamaguchi</strong> ✦
+</footer>
+
+<div class="player">
+  <div class="now-playing">
+    🎧 TOCANDO: <span id="currentSong">Nenhuma</span>
+  </div>
+  <div class="progress-container">
+    <div class="time-row">
+      <span id="currentTime">0:00</span>
+      <span id="duration">0:00</span>
+    </div>
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="ctrl-btn" id="prevBtn">⏮</button>
+    <button class="ctrl-btn play-btn" id="playBtn">▶</button>
+    <button class="ctrl-btn" id="nextBtn">⏭</button>
+  </div>
+</div>
+
+<audio id="audio"></audio>
+
+<div class="overlay" id="overlay"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h3>🎵 MINHAS MÚSICAS</h3>
+    <button class="close-btn" id="closeBtn">✕</button>
+  </div>
+  <div id="songsList"></div>
+  <div class="add-btn" id="addMusicBtn">+ ADICIONAR MÚSICA</div>
+  <input type="file" id="fileInput" accept="audio/*" multiple style="display:none">
+</div>
+
+<script>
+// ========== VARIÁVEIS ==========
+let mySongs = [];
+let currentIndex = -1;
+let isPlaying = false;
+
+// Elementos
+const audio = document.getElementById('audio');
+const playBtn = document.getElementById('playBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const currentSongSpan = document.getElementById('currentSong');
+const currentTimeSpan = document.getElementById('currentTime');
+const durationSpan = document.getElementById('duration');
+const progressBar = document.getElementById('progressBar');
+const progressFill = document.getElementById('progressFill');
+
+// ========== FUNÇÕES DO PLAYER ==========
+function formatTime(sec) {
+  if (isNaN(sec)) return '0:00';
+  let mins = Math.floor(sec / 60);
+  let segs = Math.floor(sec % 60);
+  return `${mins}:${segs < 10 ? '0' : ''}${segs}`;
+}
+
+function updateUI() {
+  if (currentIndex >= 0 && mySongs[currentIndex]) {
+    currentSongSpan.textContent = mySongs[currentIndex].name;
+  } else {
+    currentSongSpan.textContent = 'Nenhuma';
+  }
+}
+
+function loadSong(index) {
+  if (index < 0 || index >= mySongs.length) return;
+  currentIndex = index;
+  let song = mySongs[currentIndex];
+  audio.src = song.url;
+  audio.load();
+  audio.play().then(() => {
+    isPlaying = true;
+    playBtn.textContent = '⏸';
+    updateUI();
+  }).catch(() => {
+    isPlaying = false;
+    playBtn.textContent = '▶';
+  });
+  updateUI();
+}
+
+function nextSong() {
+  if (mySongs.length === 0) return;
+  let next = (currentIndex + 1) % mySongs.length;
+  loadSong(next);
+}
+
+function prevSong() {
+  if (mySongs.length === 0) return;
+  let prev = (currentIndex - 1 + mySongs.length) % mySongs.length;
+  loadSong(prev);
+}
+
+// Eventos do áudio
+audio.addEventListener('timeupdate', () => {
+  if (audio.duration) {
+    let percent = (audio.currentTime / audio.duration) * 100;
+    progressFill.style.width = `${percent}%`;
+    currentTimeSpan.textContent = formatTime(audio.currentTime);
+    durationSpan.textContent = formatTime(audio.duration);
+  }
+});
+
+audio.addEventListener('ended', () => {
+  nextSong();
+});
+
+audio.addEventListener('play', () => {
+  isPlaying = true;
+  playBtn.textContent = '⏸';
+});
+
+audio.addEventListener('pause', () => {
+  isPlaying = false;
+  playBtn.textContent = '▶';
+});
+
+// Botões
+playBtn.addEventListener('click', () => {
+  if (mySongs.length === 0) return;
+  if (isPlaying) {
+    audio.pause();
+  } else {
+    if (audio.src) audio.play();
+    else if (currentIndex >= 0) loadSong(currentIndex);
+    else loadSong(0);
+  }
+});
+
+prevBtn.addEventListener('click', prevSong);
+nextBtn.addEventListener('click', nextSong);
+
+// Progresso clicável
+progressBar.addEventListener('click', (e) => {
+  if (audio.duration) {
+    let rect = progressBar.getBoundingClientRect();
+    let percent = (e.clientX - rect.left) / rect.width;
+    audio.currentTime = percent * audio.duration;
+  }
+});
+
+// ========== BUSCAR MÚSICAS ONLINE ==========
+async function searchMusic() {
+  let query = document.getElementById('searchInput').value.trim();
+  let resultsDiv = document.getElementById('results');
+  
+  if (!query) {
+    resultsDiv.innerHTML = '<div class="result-item">⚠️ Digite algo para buscar</div>';
+    return;
+  }
+  
+  resultsDiv.innerHTML = '<div class="result-item">🔍 Buscando...</div>';
+  
+  try {
+    let res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=8`);
+    let data = await res.json();
+    
+    if (!data.results || data.results.length === 0) {
+      resultsDiv.innerHTML = '<div class="result-item">😕 Nenhum resultado encontrado</div>';
+      return;
+    }
+    
+    resultsDiv.innerHTML = '';
+    data.results.forEach(song => {
+      let div = document.createElement('div');
+      div.className = 'result-item';
+      div.innerHTML = `
+        <strong>🎤 ${escapeHtml(song.trackName || 'Sem título')}</strong>
+        <small>🎙️ ${escapeHtml(song.artistName || 'Desconhecido')}</small>
+        <button class="play-result" data-url="${song.previewUrl || ''}">🎧 Tocar Preview</button>
+      `;
+      let btn = div.querySelector('.play-result');
+      if (song.previewUrl) {
+        btn.addEventListener('click', () => {
+          let previewSong = {
+            name: song.trackName + ' (preview)',
+            artist: song.artistName,
+            url: song.previewUrl
+          };
+          mySongs.unshift(previewSong);
+          loadSong(0);
+          renderSongsList();
+          saveSongs();
+        });
+      } else {
+        btn.textContent = '❌ Sem preview';
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+      }
+      resultsDiv.appendChild(div);
+    });
+  } catch (error) {
+    resultsDiv.innerHTML = '<div class="result-item">🔥 Erro de conexão</div>';
+  }
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'));
+}
+
+// Enter para buscar
+document.getElementById('searchInput').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') searchMusic();
+});
+
+// ========== BIBLIOTECA DE MÚSICAS ==========
+function addSong(file) {
+  if (!file) return;
+  let url = URL.createObjectURL(file);
+  let name = file.name.replace(/\.[^/.]+$/, '');
+  mySongs.push({
+    name: name,
+    artist: 'Arquivo local',
+    url: url
+  });
+  if (mySongs.length === 1 && currentIndex === -1) {
+    loadSong(0);
+  }
+  renderSongsList();
+  saveSongs();
+}
+
+function renderSongsList() {
+  let container = document.getElementById('songsList');
+  if (!container) return;
+  
+  if (mySongs.length === 0) {
+    container.innerHTML = '<div class="empty">🎶 Nenhuma música adicionada<br>Clique em "+ ADICIONAR MÚSICA"</div>';
+    return;
+  }
+  
+  container.innerHTML = '';
+  mySongs.forEach((song, idx) => {
+    let div = document.createElement('div');
+    div.className = 'song-item';
+    div.innerHTML = `
+      <div>
+        <div class="song-name">🎧 ${escapeHtml(song.name)}</div>
+        <div class="song-artist">${escapeHtml(song.artist)}</div>
+      </div>
+      <button class="delete-song" data-index="${idx}">🗑️</button>
+    `;
+    div.addEventListener('click', (e) => {
+      if (e.target.classList.contains('delete-song')) return;
+      loadSong(idx);
+      closeSidebar();
+    });
+    let delBtn = div.querySelector('.delete-song');
+    delBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeSong(idx);
+    });
+    container.appendChild(div);
+  });
+}
+
+function removeSong(index) {
+  if (mySongs[index] && mySongs[index].url.startsWith('blob:')) {
+    URL.revokeObjectURL(mySongs[index].url);
+  }
+  mySongs.splice(index, 1);
+  
+  if (mySongs.length === 0) {
+    audio.pause();
+    audio.src = '';
+    currentIndex = -1;
+    isPlaying = false;
+    playBtn.textContent = '▶';
+    currentSongSpan.textContent = 'Nenhuma';
+  } else if (currentIndex === index) {
+    currentIndex = Math.min(index, mySongs.length - 1);
+    loadSong(currentIndex);
+  } else if (currentIndex > index) {
+    currentIndex--;
+  }
+  renderSongsList();
+  saveSongs();
+}
+
+function saveSongs() {
+  let songsData = mySongs.map(s => ({ name: s.name, artist: s.artist }));
+  localStorage.setItem('yamaguchi_songs', JSON.stringify(songsData));
+}
+
+function loadSongs() {
+  let saved = localStorage.getItem('yamaguchi_songs');
+  if (saved) {
+    let songsData = JSON.parse(saved);
+    mySongs = [];
+    renderSongsList();
+  }
+}
+
+// ========== SIDEBAR ==========
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+  renderSongsList();
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+document.getElementById('openLibraryBtn').addEventListener('click', openSidebar);
+document.getElementById('closeBtn').addEventListener('click', closeSidebar);
+document.getElementById('overlay').addEventListener('click', closeSidebar);
+document.getElementById('addMusicBtn').addEventListener('click', () => {
+  document.getElementById('fileInput').click();
+});
+document.getElementById('fileInput').addEventListener('change', (e) => {
+  Array.from(e.target.files).forEach(file => addSong(file));
+  e.target.value = '';
+});
+
+// ========== INICIALIZAÇÃO ==========
+loadSongs();
+renderSongsList();
+
+// PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => console.log('SW não registrado'));
+}
+</script>
+</body>
+</html>
