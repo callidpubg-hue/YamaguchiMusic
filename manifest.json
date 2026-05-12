@@ -1,0 +1,18 @@
+{
+  "name": "Yamaguchi Music",
+  "short_name": "Yamaguchi",
+  "description": "Player de música com estilo neon",
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0f",
+  "theme_color": "#ff0033",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23ff0033'/%3E%3Ctext x='50' y='67' text-anchor='middle' fill='white' font-size='50'%3E♪%3C/text%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
